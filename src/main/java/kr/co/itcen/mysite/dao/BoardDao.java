@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "insert into board values(null, ?, ?, 0, now(), (select ifnull(max(null)+1, 1) from board b), 1, 0, ?)";
+			String sql = "insert into board values(null, ?, ?, 0, now(), (select ifnull(max(g_no)+1, 1) from board b), 1, 0, ?)";
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, vo.getTitle());
 			pstmt.setString(2, vo.getContents());
@@ -78,7 +77,7 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "select board.no, title, user.name, user.no, hit, date_format(reg_date, '%Y-%m-%d %h:%i:%s') from board join user where board.user_no = user.no order by g_no desc, o_no asc, reg_date desc";
+			String sql = "select board.no, board.title, user.name, user.no, board.hit, date_format(reg_date, '%Y-%m-%d %h:%i:%s'), board.o_no, board.depth from board join user on board.user_no = user.no order by g_no desc, o_no asc, reg_date desc";
 			pstmt = connection.prepareStatement(sql);
 			
 			rs = pstmt.executeQuery();
@@ -90,6 +89,8 @@ public class BoardDao {
 				Long userNo = rs.getLong(4);
 				int hit = rs.getInt(5);
 				String regDate = rs.getString(6);
+				int oNo = rs.getInt(7);
+				int depth = rs.getInt(8);
 				
 				BoardVo vo = new BoardVo();
 				vo.setNo(no);
@@ -98,6 +99,8 @@ public class BoardDao {
 				vo.setUserNo(userNo);
 				vo.setHit(hit);
 				vo.setRegDate(regDate);
+				vo.setoNo(oNo);
+				vo.setDepth(depth);
 				
 				result.add(vo);
 			}
@@ -132,8 +135,7 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "select board.no, title, user.name, user.no, hit, date_format(reg_date, '%Y-%m-%d %h:%i:%s') from (select * from board join user where board.title like '%' || ? || '%' or user.name like '%' || ? || '%')" +
-						" join user where board.user_no = user.no order by g_no desc, o_no asc, reg_date desc";
+			String sql = "select board.no, title, user.name, user.no, hit, date_format(reg_date, '%Y-%m-%d %h:%i:%s') from board join user on board.user_no = user.no where board.title like '%" + search + "%' or user.name like '%" + search + "%' order by g_no desc, o_no asc, reg_date desc";
 			pstmt = connection.prepareStatement(sql);
 			
 			rs = pstmt.executeQuery();
@@ -188,7 +190,7 @@ public class BoardDao {
 			String sql = "update board set title = ?, contents = ? where no = ?";
 			pstmt = connection.prepareStatement(sql);
 			
-			pstmt.setString(1, vo.getTitle());
+			pstmt.setString(1, "(수정)" + vo.getTitle());
 			pstmt.setString(2, vo.getContents());
 			pstmt.setLong(3, vo.getNo());
 			
@@ -358,10 +360,11 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "delete from board where no = ?";
+			String sql = "update board set title = ? where no = ?";
 			pstmt = connection.prepareStatement(sql);
 			
-			pstmt.setLong(1, vo.getNo());
+			pstmt.setString(1, "(삭제된글)" + vo.getTitle());
+			pstmt.setLong(2, vo.getNo());
 
 			pstmt.executeUpdate();
 
@@ -379,6 +382,40 @@ public class BoardDao {
 				System.out.println("error: " + e);
 			}
 		}
+		
+	}
+
+	public BoardVo oNoUpdate(BoardVo vo) {
+		BoardVo result = null;
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			connection = getConnection();
+			String sql = "update board set o_no = o_no + 1 where g_no = ? and o_no > ?";
+			pstmt = connection.prepareStatement(sql);
+			
+			pstmt.setInt(1, vo.getgNo());
+			pstmt.setInt(2, vo.getoNo());
+			
+			pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			System.out.println("error: " + e);
+		} finally {
+			try {
+				if (pstmt != null) {
+					pstmt.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				System.out.println("error: " + e);
+			}
+		}
+
+		return result;
 		
 	}
 	

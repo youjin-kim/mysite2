@@ -17,7 +17,9 @@
 		<c:import url="/WEB-INF/views/includes/header.jsp" />
 		<div id="content">
 			<div id="board">
-				<form id="search_form" action="${pageContext.servletContext.contextPath }/board?a=searchform" method="post">
+				<form id="search_form"
+					action="${pageContext.servletContext.contextPath }/board?a=searchform"
+					method="post">
 					<input type="text" id="kwd" name="kwd" value=""> <input
 						type="submit" value="찾기">
 				</form>
@@ -34,21 +36,26 @@
 					<c:forEach items="${list }" var="vo" varStatus="status">
 						<tr>
 							<td>[${count-status.index }]</td>
-							<td><a
+							<td style="text-align:left;"><c:if test="${vo.depth > 0 }">
+									<c:forEach begin='1' end='${vo.depth }'>&nbsp;&nbsp;
+								</c:forEach>
+									<img
+										src="${pageContext.servletContext.contextPath }/assets/images/reply.png" />
+								</c:if>
+								<a
 								href="${pageContext.servletContext.contextPath }/board?a=view&no=${vo.no }">${vo.title }</a></td>
 							<td>${vo.userName }</td>
 							<td>${vo.hit }</td>
 							<td>${vo.regDate }</td>
 							<c:choose>
-								<c:when test="${!empty authUser and authUser.getNo() == vo.userNo }">
-										<td><a
-											href="${pageContext.servletContext.contextPath }/board?a=deleteform&no=${vo.no }"
-											class="del">삭제</a></td>
+								<c:when
+									test="${!empty authUser and authUser.getNo() == vo.userNo }">
+									<td><a
+										href="${pageContext.servletContext.contextPath }/board?a=deleteform&no=${vo.no }"
+										class="del">삭제</a></td>
 								</c:when>
 								<c:otherwise>
-								<td><a
-											href="${pageContext.servletContext.contextPath }/board"
-											class="del">삭제</a></td>
+									<td><a></a></td>
 								</c:otherwise>
 							</c:choose>
 						</tr>

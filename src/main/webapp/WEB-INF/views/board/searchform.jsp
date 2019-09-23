@@ -43,9 +43,7 @@
 										class="del">삭제</a></td>
 								</c:when>
 								<c:otherwise>
-									<td><a
-										href="${pageContext.servletContext.contextPath }/board"
-										class="del">삭제</a></td>
+									<td><a></a></td>
 								</c:otherwise>
 							</c:choose>
 						</tr>

@@ -16,22 +16,16 @@ public class DeleteAction implements Action {
 
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String gNo = request.getParameter("gNo");
-		String oNo = request.getParameter("oNo");
-		String depth = request.getParameter("depth");
-		
-//		HttpSession session = request.getSession();
-//		UserVo authUser = (UserVo) session.getAttribute("authUser");
+//		String gNo = request.getParameter("gNo");
+//		String oNo = request.getParameter("oNo");
+//		String depth = request.getParameter("depth");
 		
 		Long no = Long.parseLong(request.getParameter("no"));
+		String title = request.getParameter("title");
 		BoardVo vo = new BoardVo();
 		vo.setNo(no);
+		vo.setTitle(title);
 		new BoardDao().delete(vo);
-		
-//		request.setAttribute("vo", vo);
-//		String p = request.getParameter("p");
-//		request.setAttribute("p", p);
-//		request.setAttribute("authUser", authUser);
 		
 		WebUtils.redirect(request, response, request.getContextPath() + "/board");
 	}

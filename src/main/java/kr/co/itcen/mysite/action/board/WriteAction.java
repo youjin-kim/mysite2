@@ -23,6 +23,9 @@ public class WriteAction implements Action {
 		String oNo = request.getParameter("oNo");
 		String depth = request.getParameter("depth");
 		
+		request.setAttribute("gNo", gNo);
+		request.setAttribute("oNo", oNo);
+		
 		HttpSession session = request.getSession();
 		UserVo authUser = (UserVo) session.getAttribute("authUser");
 		
@@ -37,6 +40,7 @@ public class WriteAction implements Action {
 			vo.setgNo(Integer.parseInt(gNo));
 			vo.setoNo(Integer.parseInt(oNo));
 			vo.setDepth(Integer.parseInt(depth));
+			new BoardDao().oNoUpdate(vo);
 			new BoardDao().insertReply(vo); 
 		}
 		

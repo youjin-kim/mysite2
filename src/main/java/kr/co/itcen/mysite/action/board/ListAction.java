@@ -18,7 +18,7 @@ public class ListAction implements Action {
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		List<BoardVo> list = new BoardDao().getList();
 		request.setAttribute("list", list);
-		
+
 		WebUtils.forword(request, response, "/WEB-INF/views/board/list.jsp");
 	}
 

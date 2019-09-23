@@ -34,6 +34,7 @@ public class BoardActionFactory extends ActionFactory {
 			action = new SearchFormAction();
 			
 		} else if ("replyform".equals(actionName)) {
+			action = new ReplyFormAction();
 			
 		} else if ("reply".equals(actionName)) {
 			

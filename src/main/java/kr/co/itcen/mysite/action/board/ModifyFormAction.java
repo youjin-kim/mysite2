@@ -30,7 +30,8 @@ public class ModifyFormAction implements Action {
 		}
 		
 		Long no = Long.parseLong(request.getParameter("no"));
-		request.setAttribute("no", no);
+		BoardVo vo = new BoardDao().get(no);
+		request.setAttribute("vo", vo);
 		
 		WebUtils.forword(request, response, "/WEB-INF/views/board/modifyform.jsp");
 	}
