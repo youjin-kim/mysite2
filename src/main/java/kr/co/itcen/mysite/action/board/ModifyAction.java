@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 
 import kr.co.itcen.mysite.dao.BoardDao;
 import kr.co.itcen.mysite.vo.BoardVo;
-import kr.co.itcen.mysite.vo.UserVo;
 import kr.co.itcen.web.WebUtils;
 import kr.co.itcen.web.mvc.Action;
 

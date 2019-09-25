@@ -21,8 +21,8 @@ public class ViewAction implements Action {
 		BoardVo vo = new BoardDao().get(no);
 		request.setAttribute("vo", vo);
 		
-		String p = request.getParameter("p");
-		request.setAttribute("p", p);
+//		String p = request.getParameter("p");
+//		request.setAttribute("p", p);
 		
 		new BoardDao().updateHit(no);
 		

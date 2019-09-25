@@ -126,60 +126,6 @@ public class BoardDao {
 		return result;
 	}
 	
-	public List<BoardVo> getList(String search) {
-		List<BoardVo> result = new ArrayList<BoardVo>();
-		Connection connection = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
-		try {
-			connection = getConnection();
-
-			String sql = "select board.no, title, user.name, user.no, hit, date_format(reg_date, '%Y-%m-%d %h:%i:%s') from board join user on board.user_no = user.no where board.title like '%" + search + "%' or user.name like '%" + search + "%' order by g_no desc, o_no asc, reg_date desc";
-			pstmt = connection.prepareStatement(sql);
-			
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				Long no = rs.getLong(1);
-				String title = rs.getString(2);
-				String userName = rs.getString(3);
-				Long userNo = rs.getLong(4);
-				int hit = rs.getInt(5);
-				String regDate = rs.getString(6);
-				
-				BoardVo vo = new BoardVo();
-				vo.setNo(no);
-				vo.setTitle(title);
-				vo.setUserName(userName);
-				vo.setUserNo(userNo);
-				vo.setHit(hit);
-				vo.setRegDate(regDate);
-				
-				result.add(vo);
-			}
-
-		} catch (SQLException e) {
-			System.out.println("error: " + e);
-		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("error: " + e);
-			}
-		}
-
-		return result;
-	}
-
 	public BoardVo update(BoardVo vo) {
 		BoardVo result = null;
 		Connection connection = null;
@@ -419,4 +365,138 @@ public class BoardDao {
 		
 	}
 	
+	public int totalCount() {
+		int totalCount = 0;
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		
+		try {
+			connection = getConnection();
+			String sql = "select count(*) as totalcount from board";
+			pstmt = connection.prepareStatement(sql);
+			pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			System.out.println("error: " + e);
+		} finally {
+			try {
+				if (pstmt != null) {
+					pstmt.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				System.out.println("error: " + e);
+			}
+		}
+		
+		return totalCount;
+	}
+
+	public int totalCount(String kwd) {
+		int result = 0;
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			connection = getConnection();
+
+			String sql = "select count(*) from board where contents like ? or title like ?";
+			pstmt = connection.prepareStatement(sql);
+			kwd = "%"+kwd+"%";
+			pstmt.setString(1, kwd);
+			pstmt.setString(2, kwd);
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				result = rs.getInt(1);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("error: "+e);
+		} finally {
+			try {
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(connection !=  null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return result;
+	}
+	
+	public List<BoardVo> getList(String kwd, int startInex, int pageSize) {
+		List<BoardVo> result = new ArrayList<BoardVo>();
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			connection = getConnection();
+
+			String sql = "select b.no, b.title, b.contents, b.hit, b.reg_date, b.g_no, b.o_no, b.depth, u.no, u.name" + 
+					"  from board b" + 
+					"  join user u" +
+					"  on b.user_no = u.no" +
+					"  where b.contents like ? or b.title like ? " +
+					"  order by g_no desc, o_no asc" + 
+					"  limit ?, ?";
+			kwd = "%"+kwd+"%";
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, kwd);
+			pstmt.setString(2, kwd);
+			pstmt.setInt(3, startInex);
+			pstmt.setInt(4, pageSize);
+			
+			rs = pstmt.executeQuery();
+
+			while(rs.next()) {
+				BoardVo vo = new BoardVo();
+				Long no = rs.getLong(1);
+				String title = rs.getString(2);
+				String contents = rs.getString(3);
+				int hit = rs.getInt(4);
+				String regDate = rs.getString(5);
+				int gNo = rs.getInt(6);
+				int oNo = rs.getInt(7);
+				int depth = rs.getInt(8);
+				Long userNo = rs.getLong(9);
+				String userName = rs.getString(10);
+				
+				vo.setNo(no);
+				vo.setTitle(title);
+				vo.setContents(contents);
+				vo.setHit(hit);
+				vo.setRegDate(regDate);
+				vo.setgNo(gNo);
+				vo.setoNo(oNo);
+				vo.setDepth(depth);
+				vo.setUserNo(userNo);
+				vo.setUserName(userName);
+				
+				result.add(vo);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("error: "+e);
+		} finally {
+			try {
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(connection !=  null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return result;
+	}
 }

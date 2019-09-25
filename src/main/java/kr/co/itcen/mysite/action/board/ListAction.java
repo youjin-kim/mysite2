@@ -16,8 +16,24 @@ public class ListAction implements Action {
 
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<BoardVo> list = new BoardDao().getList();
-		request.setAttribute("list", list);
+		String cp = request.getParameter("p");
+		int curPage = 1;
+		if(cp != null) {
+			curPage = Integer.parseInt(cp);
+		}
+		String kwd = request.getParameter("kwd");
+		if(kwd == null) {
+			kwd = "";
+		}
+
+		BoardDao dao = new BoardDao();
+        int listCount = dao.totalCount(kwd);
+        
+        Paging paging = new Paging(listCount, curPage);
+        List<BoardVo> list = new BoardDao().getList(kwd, paging.getStartIndex(), paging.getPageSize());
+		
+        request.setAttribute("list", list);
+        request.setAttribute("paging", paging);
 
 		WebUtils.forword(request, response, "/WEB-INF/views/board/list.jsp");
 	}
