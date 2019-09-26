@@ -41,14 +41,17 @@
 								</c:forEach>
 									<img
 										src="${pageContext.servletContext.contextPath }/assets/images/reply.png" />
-								</c:if> <a
-								href="${pageContext.servletContext.contextPath }/board?a=view&no=${vo.no }&p=${paging.curPage }">${vo.title }</a></td>
+								</c:if> <c:if test="${vo.status eq 1 }">${vo.title }</c:if> <c:if
+									test="${vo.status ne 1 }">
+									<a
+										href="${pageContext.servletContext.contextPath }/board?a=view&no=${vo.no }&p=${paging.curPage }">${vo.title }</a>
+								</c:if>
 							<td>${vo.userName }</td>
 							<td>${vo.hit }</td>
 							<td>${vo.regDate }</td>
 							<c:choose>
 								<c:when
-									test="${!empty authUser and authUser.getNo() eq vo.userNo }">
+									test="${!empty authUser and authUser.getNo() eq vo.userNo and vo.status ne 1 }">
 									<td><a
 										href="${pageContext.servletContext.contextPath }/board?a=deleteform&no=${vo.no }&p=${paging.curPage }"
 										class="del">삭제</a></td>
@@ -65,26 +68,31 @@
 				<div class="pager">
 					<ul>
 						<c:if test="${paging.curRange ne 1}">
-							<li><a href="${pageContext.servletContext.contextPath }/board?p=${paging.prevRange }">[◀]</a></li>
+							<li><a
+								href="${pageContext.servletContext.contextPath }/board?p=${paging.prevRange }">[◀]</a></li>
 						</c:if>
-						
-						<c:forEach var="pageNum" begin="${paging.startPage }" end="${paging.endPage }">
+
+						<c:forEach var="pageNum" begin="${paging.startPage }"
+							end="${paging.endPage }">
 							<c:choose>
 								<c:when test="${pageNum eq  paging.curPage}">
 									<li class="selected">${pageNum }</li>
 								</c:when>
 								<c:otherwise>
-									<li><a href="${pageContext.servletContext.contextPath }/board?p=${pageNum }">${pageNum }</a></li>
+									<li><a
+										href="${pageContext.servletContext.contextPath }/board?p=${pageNum }">${pageNum }</a></li>
 								</c:otherwise>
 							</c:choose>
 						</c:forEach>
-						 
-						<c:if test="${paging.curRange ne paging.rangeCnt and paging.rangeCnt > 1}">
-							<li><a href="${pageContext.servletContext.contextPath }/board?p=${paging.nextRange }">[▶]</a></li>
+
+						<c:if
+							test="${paging.curRange ne paging.rangeCnt and paging.rangeCnt > 1}">
+							<li><a
+								href="${pageContext.servletContext.contextPath }/board?p=${paging.nextRange }">[▶]</a></li>
 						</c:if>
 					</ul>
 				</div>
-				
+
 				<c:choose>
 					<c:when test="${!empty authUser }">
 						<div class="bottom">

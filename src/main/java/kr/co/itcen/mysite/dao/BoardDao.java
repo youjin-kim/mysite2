@@ -37,7 +37,7 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "insert into board values(null, ?, ?, 0, now(), (select ifnull(max(g_no)+1, 1) from board b), 1, 0, ?)";
+			String sql = "insert into board values(null, ?, ?, 0, now(), (select ifnull(max(g_no)+1, 1) from board b), 1, 0, 0, ?)";
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, vo.getTitle());
 			pstmt.setString(2, vo.getContents());
@@ -67,64 +67,6 @@ public class BoardDao {
 		return result;
 
 	}
-
-	public List<BoardVo> getList() {
-		List<BoardVo> result = new ArrayList<BoardVo>();
-		Connection connection = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
-		try {
-			connection = getConnection();
-
-			String sql = "select board.no, board.title, user.name, user.no, board.hit, date_format(reg_date, '%Y-%m-%d %h:%i:%s'), board.o_no, board.depth from board join user on board.user_no = user.no order by g_no desc, o_no asc, reg_date desc";
-			pstmt = connection.prepareStatement(sql);
-			
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()) {
-				Long no = rs.getLong(1);
-				String title = rs.getString(2);
-				String userName = rs.getString(3);
-				Long userNo = rs.getLong(4);
-				int hit = rs.getInt(5);
-				String regDate = rs.getString(6);
-				int oNo = rs.getInt(7);
-				int depth = rs.getInt(8);
-				
-				BoardVo vo = new BoardVo();
-				vo.setNo(no);
-				vo.setTitle(title);
-				vo.setUserName(userName);
-				vo.setUserNo(userNo);
-				vo.setHit(hit);
-				vo.setRegDate(regDate);
-				vo.setoNo(oNo);
-				vo.setDepth(depth);
-				
-				result.add(vo);
-			}
-
-		} catch (SQLException e) {
-			System.out.println("error: " + e);
-		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-				}
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("error: " + e);
-			}
-		}
-
-		return result;
-	}
 	
 	public BoardVo update(BoardVo vo) {
 		BoardVo result = null;
@@ -133,12 +75,13 @@ public class BoardDao {
 		
 		try {
 			connection = getConnection();
-			String sql = "update board set title = ?, contents = ? where no = ?";
+			String sql = "update board set title = ?, contents = ?, status = ? where no = ?";
 			pstmt = connection.prepareStatement(sql);
 			
 			pstmt.setString(1, "(수정)" + vo.getTitle());
 			pstmt.setString(2, vo.getContents());
-			pstmt.setLong(3, vo.getNo());
+			pstmt.setInt(3, vo.getStatus()+2);
+			pstmt.setLong(4, vo.getNo());
 			
 			pstmt.executeUpdate();
 			
@@ -231,7 +174,7 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "insert into board values(null, ?, ?, 0, now(), ?, ?, ?, ?)";
+			String sql = "insert into board values(null, ?, ?, 0, now(), ?, ?, ?, 0, ?)";
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, vo.getTitle());
 			pstmt.setString(2, vo.getContents());
@@ -306,11 +249,12 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "update board set title = ? where no = ?";
+			String sql = "update board set title = ?, status = ? where no = ?";
 			pstmt = connection.prepareStatement(sql);
 			
-			pstmt.setString(1, "(삭제된글)" + vo.getTitle());
-			pstmt.setLong(2, vo.getNo());
+			pstmt.setString(1, "삭제된 글 입니다.");
+			pstmt.setInt(2, vo.getStatus()+1);
+			pstmt.setLong(3, vo.getNo());
 
 			pstmt.executeUpdate();
 
@@ -439,7 +383,7 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = "select b.no, b.title, b.contents, b.hit, b.reg_date, b.g_no, b.o_no, b.depth, u.no, u.name" + 
+			String sql = "select b.no, b.title, b.contents, b.hit, b.reg_date, b.g_no, b.o_no, b.depth, u.no, u.name, b.status" + 
 					"  from board b" + 
 					"  join user u" +
 					"  on b.user_no = u.no" +
@@ -467,6 +411,7 @@ public class BoardDao {
 				int depth = rs.getInt(8);
 				Long userNo = rs.getLong(9);
 				String userName = rs.getString(10);
+				int status = rs.getInt(11);
 				
 				vo.setNo(no);
 				vo.setTitle(title);
@@ -478,6 +423,7 @@ public class BoardDao {
 				vo.setDepth(depth);
 				vo.setUserNo(userNo);
 				vo.setUserName(userName);
+				vo.setStatus(status);
 				
 				result.add(vo);
 			}
